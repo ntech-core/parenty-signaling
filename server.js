@@ -46,7 +46,7 @@ if (!CF_KEY_ID || !CF_API_TOKEN) {
 }
 
 // Timing Constants
-const HEARTBEAT_TIMEOUT = 15000;       // 15-second presence lease
+const HEARTBEAT_TIMEOUT = 90000;       // 90-second presence lease (matches 30s heartbeat interval with 3x grace window)
 const CLEANUP_INTERVAL = 1000;         // 1-second centralized sweep
 const AUTH_TOKEN_CACHE_TTL = 5 * 60 * 1000; // 5-minute Parent JWT verification cache
 const PAIRING_CACHE_TTL = 2 * 60 * 1000;    // 2-minute Parent-Kid pairing cache
