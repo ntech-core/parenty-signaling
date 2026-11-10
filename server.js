@@ -397,6 +397,7 @@ wss.on('connection', (ws, req) => {
 
     ws.on('pong', () => {
         ws.isAlive = true;
+        ws.missedPings = 0;
     });
 
     ws.on('message', async (raw) => {
@@ -662,15 +663,18 @@ setInterval(() => {
     }
 }, CLEANUP_INTERVAL);
 
-// ── 10. Transport-Level Keepalive Ping (Every 25 Seconds) ─────────────────
+// ── 10. Transport-Level Keepalive Ping (Every 60 Seconds with 2-Miss Tolerance) ──
 
 const pingInterval = setInterval(() => {
     wss.clients.forEach((ws) => {
-        if (ws.isAlive === false) return ws.terminate();
-        ws.isAlive = false;
+        if ((ws.missedPings || 0) >= 2) {
+            console.log(`⚠️ Terminating dead socket after 2 missed pings (conn: ${ws.connectionId})`);
+            return ws.terminate();
+        }
+        ws.missedPings = (ws.missedPings || 0) + 1;
         ws.ping();
     });
-}, 25000);
+}, 60000);
 
 wss.on('close', () => clearInterval(pingInterval));
 
